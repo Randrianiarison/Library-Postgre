@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuteurController;
+use App\Http\Controllers\EmpruntController;
 use App\Http\Controllers\LivreController;
 use App\Http\Controllers\pdfController;
 use App\Http\Controllers\UtilisateurController;
@@ -43,5 +44,11 @@ Route::put('/livres/{id}', [LivreController::class, 'update'])->name('livres.upd
 Route::get('/livres/search', [LivreController::class, 'search'])->name('livres.search');
 
 
-Route::get('/generate-pdf', [pdfController::class, 'generatePdf']);
+Route::post('/emprunt', [EmpruntController::class, 'store'])->name('emprunt.store');
+Route::get('/emprunt', [EmpruntController::class, 'index'])->name('emprunt.index');
+Route::delete('/rendre-livre/{id}', [EmpruntController::class, 'rendreL'])->name('delete');
+
+
+Route::get('/generate-pdf', [pdfController::class, 'generatePdf'])->name('generate-pdf');
+Route::get('/generate-pdf-empr', [pdfController::class, 'pdfEmprunt'])->name('generate-pdf-emp');
 

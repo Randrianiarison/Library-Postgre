@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\livre;
+use App\Models\Utilisateur;
 use Illuminate\Http\Request;
 
 class LivreController extends Controller
@@ -10,7 +11,8 @@ class LivreController extends Controller
     public function index()
     {
         $livres = Livre::all();
-        return view('livres.index', compact('livres'));
+        $user = Utilisateur::all();
+        return view('livres.index', compact('livres','user'));
     }
 
     public function store(Request $request)
@@ -64,10 +66,22 @@ class LivreController extends Controller
     public function search(Request $request)
     {
         $query = $request->input('q');
-        $livres = Livre::where('titre', 'like', '%'.$query.'%')
-            ->orWhere('auteur', 'like', '%'.$query.'%')
-            ->get();
+        $livres = Livre::query();
+
+        if ($query) {
+            $livres->where(function($queryBuilder) use ($query) {
+                $queryBuilder->where('titre', 'like', '%'.$query.'%')
+                    ->orWhere('auteur', 'like', '%'.$query.'%')
+                    ->orWhere('genre', 'like', '%'.$query.'%')
+                    ->orWhere('annee_publication', 'like', '%'.$query.'%')
+                    ->orWhere('ISBN', 'like', '%'.$query.'%');
+            });
+        }
+
+        $livres = $livres->get();
         return view('livres.index', compact('livres'));
     }
+
+
 
 }

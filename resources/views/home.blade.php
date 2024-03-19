@@ -40,7 +40,7 @@
                         <a class="nav-link" href="{{ route('livre.index') }}">Livres</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" >Emprunt</a>
+                        <a class="nav-link" href="{{ route('emprunt.index') }}">Emprunt</a>
                     </li>
 
                 </ul>

@@ -40,7 +40,7 @@
                         <a class="nav-link" href="{{ route('livre.index') }}">Livres</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" >Emprunt</a>
+                        <a class="nav-link" href="{{ route('emprunt.index') }}">Emprunt</a>
                     </li>
                 </ul>
                 <form class="d-flex" action="{{ route('livres.search') }}" method="GET">
@@ -53,11 +53,11 @@
     </nav>
 
     <main class="container">
-
         <div class="card-header"><h3>Liste des Livres</h3> </div>
         <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#ajouterModal">
             Ajouter
         </button>
+        <a class="btn btn-warning" href="{{ route('generate-pdf') }}">PDF</a>
         <div class="card-body">
             <table class="table">
                 <thead>
@@ -65,6 +65,7 @@
                     <th scope="col">Titre</th>
                     <th scope="col">Auteur</th>
                     <th scope="col">Genre</th>
+                    <th scope="col">Nombre</th>
                     <th scope="col">Année de Publication</th>
                     <th scope="col">ISBN</th>
                     <th scope="col">Actions</th>
@@ -76,24 +77,65 @@
                         <td>{{ $livre->titre }}</td>
                         <td>{{ $livre->auteur }}</td>
                         <td>{{ $livre->genre }}</td>
+                        <td>{{ $livre->nombre }}</td>
                         <td>{{ $livre->annee_publication }}</td>
                         <td>{!! (new \Milon\Barcode\DNS1D)->getBarcodeHTML($livre->ISBN, 'PHARMA') !!}
                             P - {{ $livre->ISBN }}
                         </td>
                         <td>
-                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modifModal{{ $livre->id }}">
-                                <i class="fas fa-edit"></i> Modifier
-                            </button>
-                            <form action="{{ route('livres.destroy', $livre->id) }}" method="POST" style="display: inline;">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce livre ?');">
-                                    <i class="fas fa-trash-alt"></i> Supprimer
+                            <div class="btn-group" role="group" aria-label="Actions">
+                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modifModal{{ $livre->id }}">
+                                    <i class="fas fa-edit"></i> Modifier
                                 </button>
-                            </form>
+                                <form action="{{ route('livres.destroy', $livre->id) }}" method="POST" style="display: inline;">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce livre ?');">
+                                        <i class="fas fa-trash-alt"></i> Supprimer
+                                    </button>
+                                </form>
+                                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#emprunt{{ $livre->id }}" data-id="{{ $livre->id }}">
+                                    <i class="fas fa-edit"></i> Emprunter
+                                </button>
+
+
+                                <div class="modal fade" id="emprunt{{ $livre->id }}" tabindex="-1" aria-labelledby="empruntLabel{{ $livre->id }}" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="empruntLabel{{ $livre->id }}">Emprunter un livre : {{ $livre->titre }}</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <form action="{{ route('emprunt.store') }}" method="POST">
+                                                    @csrf
+                                                    <input type="hidden" name="livre_id" value="{{ $livre->id }}">
+                                                    <div class="mb-3">
+                                                        <label for="matricule" class="form-label">Matricule de l'étudiant</label>
+                                                        <input type="text" class="form-control" id="matricule" name="matricule" value="{{ old('matricule') }}">
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <input type="hidden" class="form-control" id="date_emprunt" name="date_emprunt" value="{{ old('date_emprunt') }}">
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="date_retour" class="form-label">Date de retour</label>
+                                                        <input type="date" class="form-control" id="date_retour" name="date_retour" value="{{ old('date_retour') }}">
+                                                    </div>
+                                                    <button type="submit" class="btn btn-primary">Emprunter</button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+
+
+                            </div>
                         </td>
                     </tr>
                 @endforeach
+
 
                 </tbody>
             </table>
@@ -102,14 +144,14 @@
         </div>
 
 
-    </main>
 
 
 
 
 
 
-    <div class="modal fade" id="ajouterModal" tabindex="-1" aria-labelledby="ajouterModalLabel" aria-hidden="true">
+
+        <div class="modal fade" id="ajouterModal" tabindex="-1" aria-labelledby="ajouterModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -117,7 +159,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form action="{{ route('livres.store') }}" method="POST">
+                    <form action="" method="POST">
                         @csrf
                         <div class="form-group">
                             <label for="titre">Titre :</label>
@@ -197,5 +239,6 @@
 
 
     </main>
+
 @endsection
 
